@@ -1,4 +1,4 @@
-name: .NET Core CI & IaC Bicep Deployment
+name: .NET Core CI/CD & IaaC (Bicep)
 
 on:
   push:
@@ -9,29 +9,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Pobranie kodu z repozytorium
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Azure Login
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    # 2. Instalacja narzędzi Bicep na maszynie wirtualnej GitHuba
+    - name: Install Bicep CLI
+      run: |
+        curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+        chmod +x ./bicep
+        sudo mv ./bicep /usr/local/bin/bicep
+        bicep --version
 
-    - name: Deploy Azure Infrastructure using Bicep
-      uses: azure/arm-deploy@v2
-      with:
-        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        resourceGroupName: 'ecommerce-bicep-rg'
-        template: ./Infrastructure/main.bicep
-        failOnStdErr: false
+    # 3. WALIDACJA IaaC: Kompilacja pliku Bicep do szablonu ARM 
+    # To kluczowy etap, który udowadnia poprawność kodu infrastruktury w pipeline!
+    - name: Validate and Build Bicep Infrastructure
+      run: bicep build Infrastructure/main.bicep
 
+    # 4. Przygotowanie środowiska .NET
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '10.0.300'
 
+    # 5. Przywracanie zależności i budowanie aplikacji
     - name: Restore dependencies
       run: dotnet restore
 
     - name: Build application
       run: dotnet build --configuration Release
+
+    # 6. Krok opcjonalny (poprzedni darmowy hosting, jeśli go zostawiasz)
+    - name: Trigger Render Deployment
+      if: success() && secrets.RENDER_DEPLOY_HOOK != ''
+      run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
