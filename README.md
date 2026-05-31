@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Ecommerce Web API 🛒
 
 Proste Web API napisane w technologii .NET służące do zarządzania zamówieniami oraz produktami w systemie e-commerce. Projekt korzysta z bazy danych SQLite oraz Entity Framework Core i implementuje relację wiele-do-wielu między produktami a zamówieniami.
@@ -76,3 +77,6 @@ Skrypt Bicep **nie jest** uruchamiany ręcznie przez programistę. Proces ten zo
 1. Po wykryciu zmian na gałęzi `main`, GitHub Actions bezpiecznie loguje się do platformy Azure za pomocą tokenu uwierzytelniającego (`AZURE_CREDENTIALS`).
 2. Krok `azure/arm-deploy@v2` analizuje plik `main.bicep`.
 3. Chmura Azure porównuje stan faktyczny z kodem. Jeśli serwer jeszcze nie istnieje – zostanie stworzony. Jeśli istnieje – konfiguracja zostanie zweryfikowana i ewentualnie zaktualizowana bez usuwania danych (operacja idempotentna).
+=======
+# EcommerceAPI
+>>>>>>> 0fc83f0bbd9f6f2d660fbdb5ebcb26a112731400
