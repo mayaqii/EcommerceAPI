@@ -1,0 +1,37 @@
+name: .NET Core CI & IaC Bicep Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  infrastructure-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy Azure Infrastructure using Bicep
+      uses: azure/arm-deploy@v2
+      with:
+        subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: 'ecommerce-bicep-rg'
+        template: ./Infrastructure/main.bicep
+        failOnStdErr: false
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build application
+      run: dotnet build --configuration Release
